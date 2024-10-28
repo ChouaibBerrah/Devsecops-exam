@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 @RestController
 @RequestMapping("/api/users")
@@ -14,6 +17,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    private ResourceBundle messages = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -28,8 +33,13 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.save(user);
+    public ResponseEntity<String> createUser(@RequestBody User user) {
+        if (userService.emailExists(user.getEmail())) {
+            return ResponseEntity.badRequest().body("Email already in use");
+        }
+        userService.save(user);
+        String errorMessage = messages.getString("email.already.in.use");
+        return ResponseEntity.badRequest().body(errorMessage);
     }
 
     @PutMapping("/{id}")

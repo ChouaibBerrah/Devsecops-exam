@@ -29,4 +29,8 @@ public class UserService {
     public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
+
+    public boolean emailExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
 }
